@@ -3580,6 +3580,9 @@ func generateRandomizedSpec(
 	points := SupportedPointsExtension{SupportedPoints: []byte{PointFormatUncompressed}}
 
 	curveIDs := []CurveID{}
+	if r.FlipWeightedCoin(id.Weights.CurveIDs_Append_X25519) && p.TLSVersMax == VersionTLS13 {
+		curveIDs = append(curveIDs, X25519MLKEM768)
+	}
 	if r.FlipWeightedCoin(id.Weights.CurveIDs_Append_X25519) || p.TLSVersMax == VersionTLS13 {
 		curveIDs = append(curveIDs, X25519)
 	}
