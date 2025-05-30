@@ -3464,11 +3464,15 @@ func generateRandomizedSpec(
 		ks := KeyShareExtension{[]KeyShare{
 			{Group: X25519}, // the key for the group will be generated later
 		}}
-		if r.FlipWeightedCoin(id.Weights.FirstKeyShare_Set_CurveP256) {
-			// do not ADD second keyShare because crypto/tls does not support multiple ecdheParams
-			// TODO: add it back when they implement multiple keyShares, or implement it oursevles
-			// ks.KeyShares = append(ks.KeyShares, KeyShare{Group: CurveP256})
+		if r.FlipWeightedCoin(id.Weights.FirstKeyShare_Set_CurveP256) { // legacy setting, not used by default
 			ks.KeyShares[0].Group = CurveP256
+		} else {
+			if r.FlipWeightedCoin(id.Weights.KeyShare_Append_RandomGroups) {
+				ks.KeyShares = append(ks.KeyShares, KeyShare{Group: CurveP256})
+			}
+			if r.FlipWeightedCoin(id.Weights.KeyShare_Append_RandomGroups) {
+				ks.KeyShares = append([]KeyShare{{Group: X25519MLKEM768}}, ks.KeyShares...)
+			}
 		}
 		pskExchangeModes := PSKKeyExchangeModesExtension{[]uint8{pskModeDHE}}
 		supportedVersionsExt := SupportedVersionsExtension{
